@@ -11,15 +11,16 @@ let PARTICLES = [];
 canvas.addEventListener("click", (evt) => {
   const x = evt.offsetX;
   const y = evt.offsetY;
-  const part = new particle(context, DOMAIN, { x, y }, 50);
+  const part = new particle(DOMAIN, { x, y }, 50);
 });
 
 class particle {
-  constructor(context, domain, location, radius) {
+  constructor(domain, location, radius) {
     this.mass = 10;
-    this.bounce = 0.3;
+    this.bounce = 1;
     this.domain = domain;
-    this.acceleration = { x: 0, y: 0.2 };
+    this.acceleration = { x: 0, y: 0 };
+    this.gravity = 0.2;
     this.velocity = { x: 0, y: 0 };
     this.location = { x: location.x, y: location.y };
     this.radius = radius;
@@ -41,22 +42,21 @@ class particle {
     this.location.y = this.location.y + this.velocity.y;
     if (this.location.y + this.radius > this.domain.h) {
       this.acceleration.y = 0;
-      this.velocity.y = 0;
-
+      this.velocity.y = this.velocity.y * -this.bounce;
       this.location.y = this.domain.h - this.radius;
     }
   }
 
   #updateVelocity() {
     this.velocity.x = this.velocity.x + this.acceleration.x;
-    this.velocity.y = this.velocity.y + this.acceleration.y;
+    this.velocity.y = this.velocity.y + this.acceleration.y + this.gravity;
   }
 
   #draw(ctx) {
-    context.beginPath();
-    context.lineWidth = 3;
-    context.arc(this.location.x, this.location.y, this.radius, 0, 2 * Math.PI);
-    context.stroke();
+    ctx.beginPath();
+    ctx.lineWidth = 3;
+    ctx.arc(this.location.x, this.location.y, this.radius, 0, 2 * Math.PI);
+    ctx.stroke();
   }
 
   #markForDelete() {
